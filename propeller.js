@@ -95,6 +95,7 @@
         if (this.onDragStart !== undefined) {
             this.onDragStart();
         }
+        event.stopPropagation();
     }
 
     p.onRotationStop = function () {
