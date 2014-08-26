@@ -65,12 +65,6 @@
         var rotations = [];
 
         var pieces = $('.piece');
-        pieces.mouseover(function(event) {
-          event.stopPropagation();
-          $(this).css('-webkit-filter', 'brightness(200%)');
-        }).mouseout(function() {
-          $(this).css('-webkit-filter', 'initial');
-        });
 
         pieces.each(function() {
           this.number = $(this).data('piece-number');
