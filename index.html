@@ -21,6 +21,13 @@
         left: 0;
         position: absolute;
         cursor: move;
+        -webkit-transition : -webkit-filter 500ms linear;
+      }
+      .hover {
+        -webkit-filter: brightness(150%);
+      }
+      .moving, .hover.moving {
+        -webkit-filter: brightness(200%);
       }
       p {
         font-family: fantasy;
@@ -65,7 +72,12 @@
         var rotations = [];
 
         var pieces = $('.piece');
-
+        pieces.mouseover(function(event) {
+          event.stopPropagation();
+          $(this).addClass('hover');
+        }).mouseout(function() {
+          $(this).removeClass('hover');
+        });
         pieces.each(function() {
           this.number = $(this).data('piece-number');
           var area = areas[this.number];
@@ -78,7 +90,11 @@
           this.propeller = new Propeller(this, {
             inertia: 0,
             angle: rotationsFromHash[this.number],
+            onDragStart: function() {
+              $(this.element).addClass('moving');
+            },
             onDragStop: function() {
+              $(this.element).removeClass('moving');
               updateHash();
             },
           });
