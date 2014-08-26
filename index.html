@@ -22,9 +22,6 @@
         position: absolute;
         cursor: move;
       }
-      .piece:hover {
-        -webkit-filter: brightness(200%);
-      }
     </style>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js">
@@ -55,6 +52,13 @@
         var rotations = [];
 
         var pieces = $('.piece');
+        pieces.mouseover(function(event) {
+          event.stopPropagation();
+          $(this).css('-webkit-filter', 'brightness(200%)');
+        }).mouseout(function() {
+          $(this).css('-webkit-filter', 'initial');
+        });
+
         pieces.each(function() {
           this.number = $(this).data('piece-number');
           var area = areas[this.number];
