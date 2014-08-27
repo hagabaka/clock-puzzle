@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html, body {
+        padding: 0;
+        margin: 0;
+      }
+      svg {
+        width: 0;
+        height: 0;
+      }
+      #clock {
+        float: left;
+        position: relative;
+      }
+      .piece {
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        position: absolute;
+        cursor: move;
+        -webkit-transition : -webkit-filter 500ms linear;
+      }
+      .hover {
+        -webkit-filter: brightness(150%);
+      }
+      .moving, .hover.moving {
+        -webkit-filter: brightness(200%);
+      }
+      p {
+        font-family: fantasy;
+        font-size: xx-large;
+        padding: 1em;
+        position: absolute;
+        width: 20em;
+        color: white;
+        text-shadow: 0.1em  0      0.3em aquamarine,
+                     0      0.1em  0.3em aquamarine,
+                     -0.1em 0      0.3em aquamarine,
+                     0      -0.1em 0.3em aquamarine;
+        z-index: 100;
+      }
+    </style>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js">
+    </script>
+    <script type='text/javascript' src='propeller.js'>
+    </script>
+
+    <script type='text/javascript'>
+      $(function () {
+        var clockImage = 'https://scontent-b-ams.xx.fbcdn.net/hphotos-xfp1/t31.0-8/10582998_813073005399753_5517992497254266498_o.jpg';
+        $('<img>').attr('src', clockImage).prependTo('#clock');
+
+        var rotationsFromHash = [0, 0, 0, 0, 0];
+        var match = /rotations:(.*)/.exec(location.hash);
+        if(match) {
+          rotationsFromHash = JSON.parse(match[1]);
+        }
+        var areas = [
+          // x, y, r
+          ['964', '607', '438'],
+          ['964', '607', '333'],
+          ['943', '544', '266'],
+          ['964', '608', '163'],
+          ['961', '606', '116'],
+          ['962', '607', '80' ],
+        ];
+
+        var rotations = [];
+
+        var pieces = $('.piece');
+        pieces.mouseover(function(event) {
+          event.stopPropagation();
+          $(this).addClass('hover');
+        }).mouseout(function() {
+          $(this).removeClass('hover');
+        });
+        pieces.each(function() {
+          this.number = $(this).data('piece-number');
+          var area = areas[this.number];
+          var x = area[0], y = area[1], r = area[2];
+          $(this).css({
+            'background-image': 'url("' + clockImage + '")',
+            '-webkit-clip-path': 'circle(' + r + 'px at ' + x + 'px ' + y + 'px)',
+            'transform-origin': x + 'px ' + y + 'px',
+          });
+          this.propeller = new Propeller(this, {
+            inertia: 0,
+            angle: rotationsFromHash[this.number],
+            onDragStart: function() {
+              $(this.element).addClass('moving');
+            },
+            onDragStop: function() {
+              $(this.element).removeClass('moving');
+              updateHash();
+            },
+          });
+          this.propeller.updateCSS();
+          $(this).dblclick(function(event) {
+            this.propeller.virtualAngle = 0;
+            updateHash();
+            return false;
+          });
+        });
+        $('body').dblclick(function(event) {
+          $('.piece').each(function() {
+            this.propeller.virtualAngle = 0;
+          });
+          updateHash();
+          return false;
+        });
+
+        function updateHash() {
+          setTimeout(function() {
+            rotations = pieces.map(function() {return this.propeller.angle}).get();
+            location.hash = 'rotations:' + JSON.stringify(rotations);
+          }, 50);
+        }
+      });
+    </script>
+  </head>
+  <body>
+    <p>Drag on a piece to rotate. Double-click a piece to reset it. Double-click the background to reset all pieces. The URL keeps track of the rotations. Currently only working on Google Chrome.</p>
+    <div id='clock'>
+      <div data-piece-number='0' class='piece'></div>
+      <div data-piece-number='1' class='piece'>
+        <div data-piece-number='2' class='piece'>
+          <div data-piece-number='3' class='piece'></div>
+          <div data-piece-number='4' class='piece'></div>
+          <div data-piece-number='5' class='piece'></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
